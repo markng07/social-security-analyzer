@@ -270,10 +270,10 @@ with tab_breakeven:
             val = original_values[row_idx][col_idx]
             if isinstance(val, int):
                 if val <= end_of_life_years:
-                    return "background-color: #D6EFD6"
-                return "background-color: #F7D6D6"
+                    return "background-color: #D6EFD6; color: #1a1a1a"
+                return "background-color: #F7D6D6; color: #1a1a1a"
             if isinstance(val, str) and val.startswith(">"):
-                return "background-color: #F7D6D6"
+                return "background-color: #F7D6D6; color: #1a1a1a"
             return ""
 
         def color_matrix(df):
@@ -315,7 +315,7 @@ with tab_sensitivity:
 
         def highlight_expected(col):
             if "expected_lifespan" in col.name:
-                return ["background-color: #FFF3B8"] * len(col)
+                return ["background-color: #FFF3B8; color: #1a1a1a"] * len(col)
             return [""] * len(col)
 
         st.dataframe(
@@ -355,7 +355,7 @@ with tab_ev:
 
         def highlight_best(row):
             if row.name == 0:
-                return ["background-color: #D6EFD6"] * len(row)
+                return ["background-color: #D6EFD6; color: #1a1a1a"] * len(row)
             return [""] * len(row)
 
         st.dataframe(
