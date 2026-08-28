@@ -275,27 +275,49 @@ with tab_summary:
 
     with col2:
         best = summary["best_strategy_at_expected_lifespan"]
-        st.subheader("Best Strategy (fixed lifespan)")
+        best_fixed_age = best["claim_age"]
+        st.subheader(f"Best Strategy (if you live to {end_of_life_years})")
         st.metric(
-            f"Claim at age {best['claim_age']}",
+            f"Claim at age {best_fixed_age}",
             f"${best['cumulative_paid']:,.0f}",
             help="Total cumulative Social Security received at expected lifespan",
         )
 
         if ev_results:
             best_ev = ev_results[0]
+            best_ev_age = best_ev["claim_age"]
+            life_exp_years = best_ev["life_expectancy_from_current_age"]
+            life_exp_age = round(current_age + life_exp_years)
             st.subheader("Best Strategy (actuarial)")
             st.metric(
-                f"Claim at age {best_ev['claim_age']}",
+                f"Claim at age {best_ev_age}",
                 f"${best_ev['expected_lifetime_benefit']:,.0f}",
-                help="Mortality-weighted expected lifetime benefit",
+                help="Mortality-weighted expected lifetime benefit using SSA life tables",
             )
             st.caption(
-                f"Life expectancy from age {current_age}: "
-                f"{best_ev['life_expectancy_from_current_age']} years"
+                f"Based on SSA mortality tables — life expectancy from age {current_age}: "
+                f"{life_exp_years} years (to age ~{life_exp_age})"
             )
 
+            if best_fixed_age != best_ev_age:
+                st.info(
+                    f"**Why do these differ?** The fixed-lifespan answer assumes you die at "
+                    f"exactly {end_of_life_years}. The actuarial answer weights all possible "
+                    f"lifespans by their probability (SSA life tables say life expectancy is "
+                    f"~{life_exp_age}). "
+                    + (
+                        f"Your expected end-of-life ({end_of_life_years}) is well below the "
+                        f"actuarial life expectancy (~{life_exp_age}), so the two methods "
+                        f"give very different recommendations."
+                        if end_of_life_years < life_exp_age - 2
+                        else
+                        f"The two methods weight longevity risk differently, leading to "
+                        f"slightly different optimal ages."
+                    )
+                )
+
     st.subheader("Consecutive-Pair Recommendations")
+    st.caption(f"Based on fixed lifespan of {end_of_life_years}")
     for verdict in summary["consecutive_pair_verdicts"]:
         if "WAIT" in verdict:
             st.success(verdict)
@@ -304,6 +326,10 @@ with tab_summary:
 
     if ev_results:
         st.subheader("Expected Value Ranking")
+        st.caption(
+            "Based on SSA mortality tables — does NOT depend on the end-of-life slider. "
+            "See the Expected Value tab for details."
+        )
         for i, ev_row in enumerate(ev_results):
             label = f"Claim {ev_row['claim_age']}: ${ev_row['expected_lifetime_benefit']:,.0f}"
             if i == 0:
