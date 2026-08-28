@@ -13,6 +13,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
 import streamlit as st
 
 import ss_deferment_calculator as calc
@@ -249,6 +250,9 @@ ev_results = calc.compute_expected_value_analysis(
 
 summary = calc.build_summary(config, scenarios, end_of_life_age, ev_results=ev_results)
 
+life_exp_years = ev_results[0]["life_expectancy_from_current_age"] if ev_results else None
+life_exp_age = round(current_age + life_exp_years) if life_exp_years else None
+
 
 # ── Display results ──────────────────────────────────────────────────────────
 
@@ -286,8 +290,6 @@ with tab_summary:
         if ev_results:
             best_ev = ev_results[0]
             best_ev_age = best_ev["claim_age"]
-            life_exp_years = best_ev["life_expectancy_from_current_age"]
-            life_exp_age = round(current_age + life_exp_years)
             st.subheader("Best Strategy (actuarial)")
             st.metric(
                 f"Claim at age {best_ev_age}",
@@ -337,6 +339,43 @@ with tab_summary:
             else:
                 st.write(label)
 
+    st.subheader("Survival Probabilities")
+    st.caption(
+        f"Probability of surviving from your current age ({current_age}) to each future age, "
+        f"based on SSA 2021 Period Life Table ({sex.lower()})."
+    )
+
+    death_probs = calc.compute_death_probabilities(current_age, calc.ACTUARIAL_MAX_AGE, qx_table)
+    survival_ages = list(range(65, 101))
+    survival_data = []
+    for age in survival_ages:
+        p_survive = 1.0 - sum(p for a, p in death_probs.items() if a < age)
+        survival_data.append({
+            "Age": age,
+            "Probability of Surviving": f"{p_survive * 100:.1f}%",
+        })
+
+    df_display = pd.DataFrame(survival_data)
+
+    def highlight_survival(row):
+        age = row["Age"]
+        if age == end_of_life_years:
+            return ["background-color: #FFF3B8; color: #1a1a1a"] * len(row)
+        if life_exp_age is not None and age == life_exp_age:
+            return ["background-color: #D6EFD6; color: #1a1a1a"] * len(row)
+        return [""] * len(row)
+
+    st.dataframe(
+        df_display.style.apply(highlight_survival, axis=1),
+        use_container_width=False,
+        hide_index=True,
+        height=320,
+    )
+    legend_parts = [f"**Yellow** = your expected end-of-life age ({end_of_life_years})"]
+    if ev_results:
+        legend_parts.append(f"**Green** = actuarial life expectancy (~{life_exp_age})")
+    st.caption(" | ".join(legend_parts))
+
     with st.expander("Model Caveats"):
         for caveat in summary["model_caveats"]:
             st.write(f"- {caveat}")
@@ -351,7 +390,6 @@ with tab_breakeven:
         f"Red = after or never."
     )
 
-    import pandas as pd
 
     if len(matrix) > 1:
         header = matrix[0][1:]
