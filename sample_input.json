@@ -1,0 +1,63 @@
+{
+  "birth_date": "1964-06-15",
+  "full_retirement_age": {
+    "years": 67,
+    "months": 0
+  },
+  "end_of_life_age": {
+    "years": 80,
+    "months": 0
+  },
+  "ssa_full_retirement_monthly_benefit": 3200.0,
+  "annual_salary": 85000.0,
+  "claim_ages": [
+    {
+      "years": 62,
+      "months": 0
+    },
+    {
+      "years": 63,
+      "months": 0
+    },
+    {
+      "years": 64,
+      "months": 0
+    },
+    {
+      "years": 65,
+      "months": 0
+    },
+    {
+      "years": 66,
+      "months": 0
+    },
+    {
+      "years": 67,
+      "months": 0
+    },
+    {
+      "years": 68,
+      "months": 0
+    },
+    {
+      "years": 69,
+      "months": 0
+    },
+    {
+      "years": 70,
+      "months": 0
+    }
+  ],
+  "adjust_benefit_at_fra_for_deferred_months": true,
+  "default_earnings_test_limits": {
+    "lower_limit": 24480.0,
+    "higher_limit": 65160.0
+  },
+  "earnings_test_limits_by_year": {
+    "2026": {
+      "lower_limit": 24480.0,
+      "higher_limit": 65160.0
+    }
+  },
+  "output_csv": "social_security_projection.csv"
+}
