@@ -72,6 +72,7 @@ Results update **automatically** whenever you change any input.
 - The **green row** is the best claim age by expected value.
 - If the spread between best and worst is small (e.g., $12k), the decision barely matters financially — choose based on cash-flow needs instead.
 - Survival probabilities help you gauge how realistic fixed-lifespan scenarios are.
+- **Note:** These numbers do NOT change when you adjust the expected end-of-life age — that's by design. The expected value is calculated from the mortality table, not your lifespan guess. It changes only when you change birth date, PIA, salary, sex, or claim ages.
 
 **Projection** — The full year-by-year data behind all calculations:
 - Filter by claim age using the dropdown.
