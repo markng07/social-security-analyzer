@@ -27,6 +27,75 @@ st.set_page_config(
 st.title("Social Security Claiming-Age Analyzer")
 st.caption("Determine the optimal age to start Social Security retirement benefits.")
 
+with st.expander("How to Use This App & Interpret Results", expanded=False):
+    st.markdown("""
+### Getting Started
+
+1. **Fill in your information** in the left sidebar:
+   - **Date of birth** and **Full Retirement Age (FRA)** — find these on your SSA statement.
+   - **FRA monthly benefit (PIA)** — the monthly amount SSA says you'll receive if you claim at FRA.
+   - **Sex** — selects the mortality table (male or female) for the actuarial analysis.
+
+2. **Enter your salary** — either a flat annual amount, or a schedule by age (e.g., $71,537 until 67, then $0 for retirement). The salary determines how the **earnings test** affects your benefits before FRA.
+
+3. **Set your expected end-of-life age** — this drives the fixed-lifespan analysis. The actuarial analysis (Expected Value tab) does not depend on this.
+
+4. **Choose claim ages to compare** — select which ages (62–70) you want to analyze side by side.
+
+5. **Optional: paste SSA statement benefits** — if your SSA statement lists specific monthly amounts by claim age, enter them to use those exact numbers instead of calculated estimates.
+
+Results update **automatically** whenever you change any input.
+
+---
+
+### Understanding the Tabs
+
+**Summary** — Start here. Shows the best claiming age under both methods:
+- *Fixed lifespan*: assumes you live to exactly the age you entered.
+- *Actuarial*: weights every possible lifespan by its probability — no guessing needed.
+- The consecutive-pair verdicts (green = WAIT, red = CLAIM) walk through each adjacent pair of ages.
+
+**Break-Even** — A matrix showing when waiting pays off:
+- Each cell = the age at which waiting catches up to claiming earlier.
+- **Green** = catches up before your expected lifespan (waiting is worthwhile).
+- **Red** = catches up after, or never (claim earlier).
+- The pairwise details table below shows exact dollar differences.
+
+**Sensitivity** — How your total payout changes across different lifespans:
+- Rows = claim ages, columns = checkpoint ages (70, 75, 80, 85, 90, 95).
+- The **yellow column** is your expected lifespan.
+- Read down a column to find the best claim age at that lifespan.
+- Read across a row to see how one strategy performs if you live longer or shorter.
+
+**Expected Value** — The most robust analysis (no lifespan guess):
+- Uses SSA mortality tables to weight every possible death age by its probability.
+- The **green row** is the best claim age by expected value.
+- If the spread between best and worst is small (e.g., $12k), the decision barely matters financially — choose based on cash-flow needs instead.
+- Survival probabilities help you gauge how realistic fixed-lifespan scenarios are.
+
+**Projection** — The full year-by-year data behind all calculations:
+- Filter by claim age using the dropdown.
+- Key columns: `paid_social_security` (cash received that year), `withheld_deferred_due_to_work` (held back by earnings test — not lost), `cumulative_paid_social_security` (running total).
+
+---
+
+### Key Concepts
+
+- **Earnings test**: If you claim before FRA and still work, SSA withholds some benefits. This money is **not lost** — your benefit is recalculated at FRA to credit the withheld months. But claiming early while earning a high salary means you take the permanent early-claiming reduction for little or no immediate cash.
+- **Early claiming reduction**: Up to 30% permanent reduction for claiming at 62 (with FRA 67).
+- **Delayed retirement credits**: 8% per year increase for each year you delay past FRA, up to age 70.
+- **This model does NOT include**: COLA, inflation, taxes, Medicare premiums, or NPV discounting. All comparisons are in today's dollars.
+
+---
+
+### Downloads
+
+Use the download buttons at the bottom to save:
+- **Excel (.xlsx)** — the same 5-tab workbook, formatted for printing or sharing.
+- **CSV** — raw projection data for all scenarios.
+- **JSON** — your input settings, so you can reload or share your configuration.
+""")
+
 
 # ── Sidebar: inputs ──────────────────────────────────────────────────────────
 
