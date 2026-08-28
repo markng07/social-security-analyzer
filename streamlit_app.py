@@ -346,34 +346,30 @@ with tab_summary:
     )
 
     death_probs = calc.compute_death_probabilities(current_age, calc.ACTUARIAL_MAX_AGE, qx_table)
-    survival_ages = list(range(65, 101))
-    survival_data = []
+    survival_ages = list(range(65, 91))
+    survival_dict = {}
     for age in survival_ages:
         p_survive = 1.0 - sum(p for a, p in death_probs.items() if a < age)
-        survival_data.append({
-            "Age": age,
-            "Probability of Surviving": f"{p_survive * 100:.1f}%",
-        })
-
-    df_display = pd.DataFrame(survival_data)
-
-    def highlight_survival(row):
-        age = row["Age"]
+        label = f"Age {age}"
         if age == end_of_life_years:
-            return ["background-color: #FFF3B8; color: #1a1a1a"] * len(row)
-        if life_exp_age is not None and age == life_exp_age:
-            return ["background-color: #D6EFD6; color: #1a1a1a"] * len(row)
-        return [""] * len(row)
+            label += " *"
+        elif life_exp_age is not None and age == life_exp_age:
+            label += " **"
+        survival_dict[label] = f"{p_survive * 100:.1f}%"
 
-    st.dataframe(
-        df_display.style.apply(highlight_survival, axis=1),
-        use_container_width=False,
-        hide_index=True,
-        height=320,
-    )
-    legend_parts = [f"**Yellow** = your expected end-of-life age ({end_of_life_years})"]
+    n_cols = 3
+    col_size = len(survival_ages) // n_cols + (1 if len(survival_ages) % n_cols else 0)
+    items = list(survival_dict.items())
+    cols = st.columns(n_cols)
+    for i, col in enumerate(cols):
+        chunk = items[i * col_size : (i + 1) * col_size]
+        if chunk:
+            md_rows = "\n".join(f"| {label} | {val} |" for label, val in chunk)
+            col.markdown(f"| Age | Prob. |\n|---|---|\n{md_rows}")
+
+    legend_parts = [f"\\* Your expected end-of-life age ({end_of_life_years})"]
     if ev_results:
-        legend_parts.append(f"**Green** = actuarial life expectancy (~{life_exp_age})")
+        legend_parts.append(f"\\*\\* Actuarial life expectancy (~{life_exp_age})")
     st.caption(" | ".join(legend_parts))
 
     with st.expander("Model Caveats"):
