@@ -153,7 +153,7 @@ with st.sidebar:
     st.divider()
     st.header("Analysis Settings")
 
-    end_of_life_years = st.slider("Expected end-of-life age", 70, 100, 90)
+    end_of_life_years = st.slider("Expected end-of-life age", 65, 100, 90)
 
     st.caption("Claim ages to compare (select all that apply)")
     claim_age_options = list(range(62, 71))
